@@ -439,6 +439,166 @@ def admin_dashboard():
         "admin_dashboard.html",
         users=users,
     )
+# ---------------------------------------------------------
+# MODEL PERFORMANCE DASHBOARD
+# ---------------------------------------------------------
+
+MODEL_METRIC_FILES = {
+    "Diabetes": {
+        "comparison": "diabetes_model_comparison.csv",
+        "cross_validation": "diabetes_cross_validation.csv",
+    },
+    "Heart Disease": {
+        "comparison": "heart_model_comparison.csv",
+        "cross_validation": "heart_cross_validation.csv",
+    },
+    "Kidney Disease": {
+        "comparison": "kidney_model_comparison.csv",
+        "cross_validation": "kidney_cross_validation.csv",
+    },
+    "Liver Disease": {
+        "comparison": "liver_model_comparison.csv",
+        "cross_validation": None,
+    },
+}
+
+
+def normalize_metric_name(name):
+    """Normalize metric column names across evaluation CSV files."""
+    return (
+        str(name)
+        .strip()
+        .lower()
+        .replace("-", "")
+        .replace("_", "")
+        .replace(" ", "")
+    )
+
+
+def load_model_metrics(csv_path):
+    """Load and normalize model metrics from a CSV file."""
+    if not os.path.isfile(csv_path):
+        return []
+
+    df = pd.read_csv(csv_path)
+    records = []
+
+    for _, row in df.iterrows():
+        record = {}
+
+        for column in df.columns:
+            normalized = normalize_metric_name(column)
+            value = row[column]
+
+            if normalized == "model":
+                record["model"] = str(value)
+
+            elif normalized in {
+                "accuracy", "accuracymean",
+            }:
+                record["accuracy"] = float(value)
+
+            elif normalized in {
+                "precision", "precisionmean",
+            }:
+                record["precision"] = float(value)
+
+            elif normalized in {
+                "recall", "recallmean",
+            }:
+                record["recall"] = float(value)
+
+            elif normalized in {
+                "f1score", "f1", "f1mean",
+            }:
+                record["f1"] = float(value)
+
+            elif normalized in {
+                "rocauc", "rocaucmean",
+            }:
+                record["roc_auc"] = float(value)
+
+            elif normalized in {
+                "accuracystd",
+            }:
+                record["accuracy_std"] = float(value)
+
+            elif normalized in {
+                "precisionstd",
+            }:
+                record["precision_std"] = float(value)
+
+            elif normalized in {
+                "recallstd",
+            }:
+                record["recall_std"] = float(value)
+
+            elif normalized in {
+                "f1std",
+            }:
+                record["f1_std"] = float(value)
+
+            elif normalized in {
+                "rocaucstd",
+            }:
+                record["roc_auc_std"] = float(value)
+
+        if record.get("model"):
+            records.append(record)
+
+    return records
+
+
+@app.route("/admin/model-performance")
+@login_required
+def model_performance():
+    # Restrict the page to administrators.
+    current_user = get_user_by_id(session["user_id"])
+
+    if not current_user or current_user["role"] != "admin":
+        flash("Administrator access is required.", "danger")
+        return redirect(url_for("dashboard"))
+
+    base_dir = os.path.join(
+        app.root_path,
+        "app",
+        "models",
+    )
+
+    performance_data = {}
+
+    for disease, filenames in MODEL_METRIC_FILES.items():
+        comparison_path = os.path.join(
+            base_dir,
+            filenames["comparison"],
+        )
+
+        comparison_metrics = load_model_metrics(comparison_path)
+
+        cross_validation_metrics = []
+
+        if filenames["cross_validation"]:
+            cv_path = os.path.join(
+                base_dir,
+                filenames["cross_validation"],
+            )
+
+            cross_validation_metrics = load_model_metrics(cv_path)
+
+        performance_data[disease] = {
+            "comparison": comparison_metrics,
+            "cross_validation": cross_validation_metrics,
+            "evaluation_type": (
+                "Cross-validation mean"
+                if disease == "Liver Disease"
+                else "Evaluation results"
+            ),
+        }
+
+    return render_template(
+        "model_performance.html",
+        performance_data=performance_data,
+    )   
 
 @app.route("/dashboard")
 @login_required

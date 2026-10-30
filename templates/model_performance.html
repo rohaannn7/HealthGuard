@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Model Performance | Health Guard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f6fa;
+            color: #17324d;
+        }
+
+        nav {
+            background: white;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #087f8c;
+        }
+
+        nav a {
+            color: #17324d;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 18px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: #087f8c;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #60758b;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .notice {
+            background: #fff7df;
+            border: 1px solid #f0d889;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .disease-section {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(20, 50, 70, 0.05);
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            color: #087f8c;
+        }
+
+        .tag {
+            background: #e7f6f7;
+            color: #087f8c;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th, td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e3ebf1;
+            text-align: left;
+        }
+
+        th {
+            background: #e7f6f7;
+            color: #087f8c;
+        }
+
+        .metric {
+            font-weight: bold;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin-top: 28px;
+        }
+
+        .empty {
+            color: #60758b;
+            padding: 18px 0;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin: 5px 0 30px;
+            background: #087f8c;
+            color: white;
+            padding: 13px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: #066773;
+        }
+
+        footer {
+            color: #60758b;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                margin-top: 25px;
+            }
+
+            .disease-section {
+                padding: 16px;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">🩺 Health Guard</div>
+
+    <div>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <h1>📈 Model Performance Dashboard</h1>
+
+    <p class="subtitle">
+        Review the recorded evaluation metrics for the trained
+        disease prediction models.
+    </p>
+
+    <div class="notice">
+        <strong>Evaluation note:</strong>
+        Accuracy, precision, recall, F1-score, and ROC-AUC are shown
+        as proportions converted to percentages. Liver results use
+        cross-validation means and include standard deviations where
+        available. These metrics describe model evaluation results;
+        they do not establish clinical effectiveness.
+    </div>
+
+    {% for disease, data in performance_data.items() %}
+
+    <section class="disease-section">
+
+        <div class="section-heading">
+            <h2>{{ disease }}</h2>
+            <span class="tag">{{ data.evaluation_type }}</span>
+        </div>
+
+        {% if data.comparison %}
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-score</th>
+                        <th>ROC-AUC</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for model in data.comparison %}
+                    <tr>
+                        <td>{{ model.model }}</td>
+
+                        <td class="metric">
+                            {% if model.accuracy is defined %}
+                                {{ "%.2f"|format(model.accuracy * 100) }}%
+                            {% else %}N/A{% endif %}
+                        </td>
+
+                        <td class="metric">
+                            {% if model.precision is defined %}
+                                {{ "%.2f"|format(model.precision * 100) }}%
+                            {% else %}N/A{% endif %}
+                        </td>
+
+                        <td class="metric">
+                            {% if model.recall is defined %}
+                                {{ "%.2f"|format(model.recall * 100) }}%
+                            {% else %}N/A{% endif %}
+                        </td>
+
+                        <td class="metric">
+                            {% if model.f1 is defined %}
+                                {{ "%.2f"|format(model.f1 * 100) }}%
+                            {% else %}N/A{% endif %}
+                        </td>
+
+                        <td class="metric">
+                            {% if model.roc_auc is defined %}
+                                {{ "%.2f"|format(model.roc_auc * 100) }}%
+                            {% else %}N/A{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="chart-{{ loop.index }}"></canvas>
+        </div>
+
+        {% else %}
+            <p class="empty">
+                No model comparison metrics are available for this module.
+            </p>
+        {% endif %}
+
+        {% if data.cross_validation %}
+        <h3>Cross-validation results</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Accuracy mean ± SD</th>
+                        <th>Precision mean ± SD</th>
+                        <th>Recall mean ± SD</th>
+                        <th>F1 mean ± SD</th>
+                        <th>ROC-AUC mean ± SD</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for model in data.cross_validation %}
+                    <tr>
+                        <td>{{ model.model }}</td>
+
+                        {% for metric, std_metric in [
+                            ("accuracy", "accuracy_std"),
+                            ("precision", "precision_std"),
+                            ("recall", "recall_std"),
+                            ("f1", "f1_std"),
+                            ("roc_auc", "roc_auc_std")
+                        ] %}
+                        <td>
+                            {% if model[metric] is defined %}
+                                {{ "%.3f"|format(model[metric] * 100) }}%
+                                {% if model[std_metric] is defined %}
+                                    ± {{ "%.3f"|format(model[std_metric] * 100) }}%
+                                {% endif %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+    </section>
+
+    {% endfor %}
+
+    <a href="{{ url_for('admin_dashboard') }}" class="back-button">
+        ← Back to Admin Dashboard
+    </a>
+
+</main>
+
+<footer>
+    Health Guard — Model evaluation and decision-support information.
+    Predictions are not medical diagnoses.
+</footer>
+
+<script>
+    const performanceData = {{ performance_data | tojson }};
+
+    const metricKeys = [
+        "accuracy",
+        "precision",
+        "recall",
+        "f1",
+        "roc_auc"
+    ];
+
+    const metricLabels = [
+        "Accuracy",
+        "Precision",
+        "Recall",
+        "F1-score",
+        "ROC-AUC"
+    ];
+
+    let chartIndex = 1;
+
+    for (const [disease, data] of Object.entries(performanceData)) {
+        if (!data.comparison || data.comparison.length === 0) {
+            continue;
+        }
+
+        const canvas = document.getElementById("chart-" + chartIndex);
+        chartIndex++;
+
+        if (!canvas) {
+            continue;
+        }
+
+        const datasets = data.comparison.map((model) => ({
+            label: model.model,
+            data: metricKeys.map((key) =>
+                model[key] !== undefined
+                    ? Number((model[key] * 100).toFixed(2))
+                    : null
+            ),
+            borderWidth: 1
+        }));
+
+        new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels: metricLabels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: "Score (%)"
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: disease + " — Model Comparison"
+                    },
+                    legend: {
+                        position: "bottom"
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
