@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Dashboard | Health Guard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f8fc;
+            color: #172b4d;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #087f8c;
+        }
+
+        nav a {
+            color: #172b4d;
+            text-decoration: none;
+            margin-left: 22px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 55px 25px;
+        }
+
+        .heading {
+            margin-bottom: 35px;
+        }
+
+        .heading h1 {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .heading p {
+            color: #64748b;
+            font-size: 17px;
+        }
+
+        .disease-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .icon {
+            font-size: 38px;
+            margin-bottom: 18px;
+        }
+
+        .card h2 {
+            font-size: 21px;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 6px 11px;
+            border-radius: 20px;
+            margin-bottom: 18px;
+        }
+
+        .available {
+            background: #d9f8e7;
+            color: #167444;
+        }
+
+        .planned {
+            background: #fff0d2;
+            color: #946200;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 11px 17px;
+            border-radius: 7px;
+            text-decoration: none;
+            background: #087f8c;
+            color: white;
+            font-weight: bold;
+            margin-top: auto;
+        }
+
+        .disabled {
+            background: #e2e8f0;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .notice {
+            margin-top: 35px;
+            padding: 18px;
+            border-radius: 10px;
+            background: #fff8e6;
+            color: #725b22;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            background: #102a43;
+            color: white;
+            padding: 24px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                padding: 18px 5%;
+            }
+
+            nav a {
+                margin-left: 10px;
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 35px 18px;
+            }
+        }
+        
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+    }
+
+    .logout-button {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 7px;
+        background: #087f8c;
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .logout-button:hover {
+        background: #066570;
+    }
+    </style>
+</head>
+
+<body>
+<nav>
+    <div class="logo">🩺 Health Guard</div>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        {% if user and user['role'] == 'admin' %}
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+        {% endif %}
+        <a href="{{ url_for('prediction_history') }}">Prediction History</a>
+
+        <form action="{{ url_for('logout') }}" method="POST"
+              style="display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+</nav>
+
+    <main class="container">
+
+        <section class="heading">
+            <h1>Disease Prediction Dashboard</h1>
+
+            <p>
+                Select a disease module to explore its
+                machine-learning-based prediction functionality.
+            </p>
+        </section>
+
+        <section class="disease-grid">
+
+            {% for disease in diseases %}
+
+            <article class="card">
+
+                <div class="icon">
+                    {% if disease.name == "Diabetes Prediction" %}
+                        🩸
+                    {% elif disease.name == "Heart Disease Prediction" %}
+                        ❤️
+                    {% elif disease.name == "Brain Tumor Detection" %}
+                        🧠
+                    {% elif disease.name == "Breast Cancer Prediction" %}
+                        🎗️
+                    {% elif disease.name == "Alzheimer's Detection" %}
+                        🧩
+                    {% elif disease.name == "Pneumonia Detection" %}
+                        🫁
+                    {% else %}
+                        🦠
+                    {% endif %}
+                </div>
+
+                <span class="status {{ 'available' if disease.available else 'planned' }}">
+                    {{ 'AVAILABLE' if disease.available else 'COMING SOON' }}
+                </span>
+
+                <h2>{{ disease.name }}</h2>
+
+                <p>{{ disease.description }}</p>
+
+                {% if disease.available %}
+                    <a class="button" href="{{ disease.url }}">
+                        Open Module →
+                    </a>
+                {% else %}
+                    <span class="button disabled">
+                        Under Development
+                    </span>
+                {% endif %}
+
+            </article>
+
+            {% endfor %}
+
+        </section>
+
+        <div class="notice">
+            <strong>Medical disclaimer:</strong>
+            Predictions from this academic application are experimental
+            and must not be used as a substitute for professional medical
+            evaluation, diagnosis, or treatment.
+        </div>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Health Guard | Academic Project</p>
+    </footer>
+
+</body>
+</html>

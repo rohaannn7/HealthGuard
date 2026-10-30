@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liver Disease Prediction | Health Guard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0f766e;
+            margin-top: 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 28px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #99f6e4;
+            border-color: #0f766e;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 26px;
+            padding: 14px;
+            background: #0f766e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #115e59;
+        }
+
+        .result, .error {
+            margin-top: 22px;
+            padding: 16px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        .result {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .disclaimer {
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0f766e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .shap-card {
+            margin-top: 28px;
+            padding: 25px;
+            background: #ffffff;
+            border: 1px solid #d9e7e5;
+            border-radius: 16px;
+            box-shadow: 0 6px 22px rgba(0, 70, 65, 0.08);
+        }
+
+        .shap-card h2 {
+            color: #087f70;
+            margin-bottom: 10px;
+        }
+
+        .shap-card h3 {
+            color: #173c45;
+            margin: 24px 0 15px;
+        }
+
+        .shap-description {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .probability-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            margin-top: 20px;
+            background: #eaf7f3;
+            border-radius: 12px;
+        }
+
+        .probability-box strong {
+            color: #087f70;
+            font-size: 26px;
+        }
+
+        .shap-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .shap-item-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .shap-value {
+            margin: 8px 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .shap-direction {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .shap-positive {
+            color: #a12a2a;
+            background: #fdecec;
+        }
+
+        .shap-negative {
+            color: #087443;
+            background: #e8f7ee;
+        }
+
+        .shap-neutral {
+            color: #475569;
+            background: #f1f5f9;
+        }
+
+        .shap-bar-background {
+            height: 8px;
+            margin-top: 12px;
+            overflow: hidden;
+            background: #edf2f7;
+            border-radius: 10px;
+        }
+
+        .shap-bar {
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .shap-bar-positive {
+            background: #dc6262;
+        }
+
+        .shap-bar-negative {
+            background: #20a477;
+        }
+
+        .shap-bar-neutral {
+            background: #94a3b8;
+        }
+
+        .shap-disclaimer {
+            margin-top: 22px;
+            padding: 14px;
+            background: #fff8e7;
+            border-left: 4px solid #eab308;
+            color: #713f12;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .shap-card {
+                padding: 16px;
+            }
+
+            .probability-box {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Liver Disease Prediction</h1>
+        <p class="subtitle">
+            Enter the laboratory values to obtain an educational model prediction.
+        </p>
+
+        <form method="POST" action="{{ url_for('predict_liver') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="age">Age (years)</label>
+                    <input type="number" id="age" name="age"
+                           min="1" max="120" step="1" required>
+                </div>
+
+                <div class="field">
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="tb">Total Bilirubin (TB)</label>
+                    <input type="number" id="tb" name="tb"
+                           min="0" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="db">Direct Bilirubin (DB)</label>
+                    <input type="number" id="db" name="db"
+                           min="0" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="alkphos">Alkaline Phosphotase (Alkphos)</label>
+                    <input type="number" id="alkphos" name="alkphos"
+                           min="0" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="sgpt">SGPT (ALT)</label>
+                    <input type="number" id="sgpt" name="sgpt"
+                           min="0" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="sgot">SGOT (AST)</label>
+                    <input type="number" id="sgot" name="sgot"
+                           min="0" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="tp">Total Proteins (TP)</label>
+                    <input type="number" id="tp" name="tp"
+                           min="0" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="alb">Albumin (ALB)</label>
+                    <input type="number" id="alb" name="alb"
+                           min="0" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="ag_ratio">Albumin/Globulin Ratio (A/G Ratio)</label>
+                    <input type="number" id="ag_ratio" name="ag_ratio"
+                           min="0" step="any" required>
+                </div>
+            </div>
+
+            <button type="submit">Predict Liver Disease Category</button>
+        </form>
+
+        {% if result %}
+            <div class="result" role="status">
+                <strong>Model output:</strong> {{ result }}
+            </div>
+        {% endif %}
+
+{% if result and report_id %}
+    <div class="mt-3">
+        <a
+            href="{{ url_for('download_health_report', report_id=report_id) }}"
+            class="btn btn-success"
+        >
+            Download PDF Health Report
+        </a>
+    </div>
+{% endif %}
+
+        {% if shap_result %}
+        <div class="shap-card">
+            <h2>Explainable AI — Liver Disease Prediction</h2>
+
+            <p class="shap-description">
+                The following features influenced the machine-learning model's
+                output for this assessment.
+            </p>
+
+            <div class="probability-box">
+                <span>Model-estimated probability</span>
+                <strong>{{ "%.2f"|format(probability) }}%</strong>
+            </div>
+
+            <h3>Top 5 Influential Features</h3>
+
+            <div class="shap-list">
+                {% for feature in top_features %}
+                <div class="shap-item">
+                    <div class="shap-item-header">
+                        <strong>{{ feature.feature }}</strong>
+                        <span>
+                            Contribution:
+                            {{ "%.5f"|format(feature.contribution) }}
+                        </span>
+                    </div>
+
+                    <p class="shap-value">
+                        Input value: {{ feature.value }}
+                    </p>
+
+                    <div class="shap-direction
+                        {% if feature.contribution > 0 %}
+                            shap-positive
+                        {% elif feature.contribution < 0 %}
+                            shap-negative
+                        {% else %}
+                            shap-neutral
+                        {% endif %}">
+                        {% if feature.contribution > 0 %}
+                            ↑ Increases the model output
+                        {% elif feature.contribution < 0 %}
+                            ↓ Decreases the model output
+                        {% else %}
+                            No directional contribution
+                        {% endif %}
+                    </div>
+
+                    <div class="shap-bar-background">
+                        <div
+                            class="shap-bar
+                            {% if feature.contribution > 0 %}
+                                shap-bar-positive
+                            {% elif feature.contribution < 0 %}
+                                shap-bar-negative
+                            {% else %}
+                                shap-bar-neutral
+                            {% endif %}"
+                            style="width: {{ [
+                                (feature.absolute_contribution /
+                                ([top_features[0].absolute_contribution, 0.000001]|max)
+                                * 100),
+                                100
+                            ]|min }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <p class="shap-disclaimer">
+                <strong>Important:</strong> SHAP describes how features influence
+                this model's output. It does not establish medical causation or
+                diagnose liver disease. Consult a qualified healthcare professional
+                for medical interpretation.
+            </p>
+        </div>
+        {% endif %}
+
+
+        {% if error %}
+            <div class="error" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <p class="disclaimer">
+            <strong>Important:</strong> This academic machine-learning tool is
+            for educational purposes only. It does not diagnose or rule out
+            liver disease. Do not use its output to make medical decisions.
+            Consult a qualified healthcare professional for medical advice.
+        </p>
+
+        <a class="back-link" href="{{ url_for('dashboard') }}">
+            &larr; Back to Dashboard
+        </a>
+    </main>
+</body>
+</html>

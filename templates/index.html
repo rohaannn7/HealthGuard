@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="Health Guard is an academic project for exploring multiple disease prediction models and blood-pressure assessment.">
+
+    <title>Health Guard | Multiple Disease Analysis</title>
+
+    <style>
+        :root {
+            --primary: #087f8c;
+            --primary-dark: #066570;
+            --primary-light: #e0f7f4;
+            --background: #f5f8fc;
+            --surface: #ffffff;
+            --text: #172b4d;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 12px 35px rgba(15, 42, 67, 0.07);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1120px, 90%);
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.97);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-content {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: -0.7px;
+        }
+
+        .logo span {
+            margin-right: 5px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links .nav-button {
+            background: var(--primary);
+            color: white;
+            padding: 11px 18px;
+            border-radius: 8px;
+        }
+
+        .nav-links .nav-button:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        /* Hero section */
+
+        .hero {
+            padding: 85px 0;
+            background:
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(8, 127, 140, 0.12),
+                    transparent 30%
+                ),
+                linear-gradient(120deg, #e8faf7, #f5f8fc 65%);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: center;
+            gap: 55px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            margin-bottom: 24px;
+            border-radius: 30px;
+            background: #d2f3ed;
+            color: var(--primary-dark);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        h1 {
+            max-width: 700px;
+            margin-bottom: 22px;
+            font-size: clamp(38px, 5vw, 61px);
+            line-height: 1.12;
+            letter-spacing: -2px;
+        }
+
+        h1 span {
+            color: var(--primary);
+        }
+
+        .hero-description {
+            max-width: 620px;
+            margin-bottom: 30px;
+            color: #53657d;
+            font-size: 17px;
+            line-height: 1.8;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 14px 22px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .button-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 7px 18px rgba(8, 127, 140, 0.17);
+        }
+
+        .button-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .button-secondary {
+            background: white;
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .button-secondary:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Illustration panel */
+
+        .hero-panel {
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.83);
+            box-shadow: var(--shadow);
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 23px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-icon {
+            display: grid;
+            width: 54px;
+            height: 54px;
+            flex-shrink: 0;
+            place-items: center;
+            border-radius: 15px;
+            background: var(--primary-light);
+            font-size: 28px;
+        }
+
+        .panel-heading h2 {
+            font-size: 18px;
+        }
+
+        .panel-heading p {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .module-list {
+            display: grid;
+            gap: 13px;
+            padding-top: 22px;
+        }
+
+        .module-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: white;
+        }
+
+        .module-symbol {
+            display: grid;
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            place-items: center;
+            border-radius: 10px;
+            background: #edf7f8;
+            font-size: 20px;
+        }
+
+        .module-item strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .module-item small {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .module-check {
+            margin-left: auto;
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Feature section */
+
+        .features {
+            padding: 85px 0;
+        }
+
+        .section-heading {
+            max-width: 650px;
+            margin: 0 auto 43px;
+            text-align: center;
+        }
+
+        .section-label {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .section-heading h2 {
+            margin-bottom: 13px;
+            font-size: clamp(28px, 4vw, 38px);
+            letter-spacing: -0.8px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            padding: 27px 23px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: var(--surface);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.025);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-icon {
+            display: grid;
+            width: 52px;
+            height: 52px;
+            margin-bottom: 20px;
+            place-items: center;
+            border-radius: 14px;
+            background: var(--primary-light);
+            font-size: 26px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        /* Call to action */
+
+        .cta {
+            padding: 0 0 75px;
+        }
+
+        .cta-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            padding: 36px 40px;
+            border-radius: 18px;
+            background: #103b50;
+            color: white;
+        }
+
+        .cta-box h2 {
+            margin-bottom: 8px;
+            font-size: 25px;
+        }
+
+        .cta-box p {
+            max-width: 600px;
+            color: #d4e5eb;
+            font-size: 14px;
+        }
+
+        .cta-box .button {
+            flex-shrink: 0;
+            background: white;
+            color: #103b50;
+        }
+
+        .cta-box .button:hover {
+            background: #e7f7f5;
+            transform: translateY(-2px);
+        }
+
+        /* Medical disclaimer */
+
+        .notice {
+            margin-bottom: 55px;
+            padding: 19px 22px;
+            border: 1px solid #f1dfac;
+            border-radius: 11px;
+            background: #fff9e9;
+            color: #705b25;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+
+        footer {
+            padding: 30px 0;
+            background: #102a43;
+            color: white;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .footer-brand {
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .footer-copy {
+            margin-top: 4px;
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        .footer-link {
+            color: #d8f3ef;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        /* Responsive layout */
+
+        @media (max-width: 1000px) {
+            .hero-grid {
+                grid-template-columns: 1fr 0.85fr;
+                gap: 28px;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero-panel {
+                padding: 22px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .nav-content {
+                padding: 15px 0;
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .nav-links {
+                width: 100%;
+                flex-wrap: wrap;
+                gap: 18px;
+            }
+
+            .hero {
+                padding: 58px 0;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                letter-spacing: -1px;
+            }
+
+            .hero-panel {
+                margin-top: 10px;
+            }
+
+            .features {
+                padding: 60px 0;
+            }
+
+            .cta-box {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 28px;
+            }
+
+            .footer-content {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 92%;
+            }
+
+            .logo {
+                font-size: 22px;
+            }
+
+            .nav-links {
+                gap: 13px;
+            }
+
+            .nav-links a {
+                font-size: 12px;
+            }
+
+            .nav-links .nav-button {
+                padding: 9px 12px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .notice {
+                margin-bottom: 35px;
+                padding: 16px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="container nav-content">
+            <a href="{{ url_for('home') }}"
+               class="logo"
+               aria-label="Health Guard home">
+                <span aria-hidden="true">🩺</span> Health Guard
+            </a>
+
+            <nav class="nav-links" aria-label="Main navigation">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="#features">Features</a>
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('dashboard') }}"
+                   class="nav-button">Explore Modules →</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="hero">
+            <div class="container hero-grid">
+
+                <div class="hero-content">
+                    <div class="eyebrow">
+                        <span class="status-dot"></span>
+                        Academic Healthcare Technology Project
+                    </div>
+
+                    <h1>
+                        Understand Your Health.<br>
+                        <span>Take a Smarter Step.</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        Health Guard is a web-based academic project that
+                        brings multiple machine-learning disease prediction
+                        models and a blood-pressure assessment tool together
+                        in one convenient platform.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a href="{{ url_for('dashboard') }}"
+                           class="button button-primary">
+                            Explore Prediction Modules →
+                        </a>
+
+                        <a href="#features"
+                           class="button button-secondary">
+                            Discover Features
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-panel" aria-label="Available modules">
+                    <div class="panel-heading">
+                        <div class="panel-icon" aria-hidden="true">🩺</div>
+
+                        <div>
+                            <h2>Health Guard Modules</h2>
+                            <p>Five available assessment modules</p>
+                        </div>
+                    </div>
+
+                    <div class="module-list">
+
+                        <div class="module-item">
+                            <div class="module-symbol" aria-hidden="true">🩸</div>
+                            <div>
+                                <strong>Diabetes Prediction</strong>
+                                <small>Machine-learning model</small>
+                            </div>
+                            <span class="module-check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-symbol" aria-hidden="true">❤️</div>
+                            <div>
+                                <strong>Heart Disease Prediction</strong>
+                                <small>Machine-learning model</small>
+                            </div>
+                            <span class="module-check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-symbol" aria-hidden="true">🧪</div>
+                            <div>
+                                <strong>Kidney Disease Prediction</strong>
+                                <small>Machine-learning model</small>
+                            </div>
+                            <span class="module-check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-symbol" aria-hidden="true">🧬</div>
+                            <div>
+                                <strong>Liver Disease Prediction</strong>
+                                <small>Machine-learning model</small>
+                            </div>
+                            <span class="module-check" aria-hidden="true">✓</span>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-symbol" aria-hidden="true">💓</div>
+                            <div>
+                                <strong>Hypertension Assessment</strong>
+                                <small>Rule-based blood-pressure assessment</small>
+                            </div>
+                            <span class="module-check" aria-hidden="true">✓</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <div class="container">
+
+                <div class="section-heading">
+                    <span class="section-label">Platform Overview</span>
+
+                    <h2>One Platform. Multiple Health Modules.</h2>
+
+                    <p>
+                        Explore how machine learning, structured health data,
+                        and web technologies come together in this academic project.
+                    </p>
+                </div>
+
+                <div class="feature-grid">
+
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">🧠</div>
+                        <h3>Multiple Disease Analysis</h3>
+                        <p>
+                            Access four separate machine-learning prediction
+                            modules through a unified web application.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">🤖</div>
+                        <h3>Machine Learning</h3>
+                        <p>
+                            Apply trained classification models to structured
+                            health-related input data.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">📊</div>
+                        <h3>Model Evaluation</h3>
+                        <p>
+                            Evaluate classification performance using
+                            accuracy, precision, recall, F1-score and ROC-AUC
+                            where appropriate.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">🩺</div>
+                        <h3>Blood-Pressure Assessment</h3>
+                        <p>
+                            Review the general category of a blood-pressure
+                            reading using predefined assessment rules.
+                        </p>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="container">
+                <div class="cta-box">
+                    <div>
+                        <h2>Explore the Health Guard Dashboard</h2>
+                        <p>
+                            Open the available modules and explore the
+                            application's prediction and assessment workflows.
+                        </p>
+                    </div>
+
+                    <a href="{{ url_for('dashboard') }}"
+                       class="button">
+                        Open Dashboard →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="container">
+            <div class="notice">
+                <strong>Important medical notice:</strong>
+                Health Guard is an academic machine-learning project.
+                Its predictions and assessments are experimental and are
+                not medical diagnoses. They must not be used to make
+                treatment decisions or replace professional medical advice.
+                Consult a qualified healthcare professional for health concerns.
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div>
+                <div class="footer-brand">🩺 Health Guard</div>
+                <p class="footer-copy">
+                    Multiple Disease Analysis and Prediction System
+                </p>
+            </div>
+
+            <a href="{{ url_for('dashboard') }}" class="footer-link">
+                Explore Modules →
+            </a>
+        </div>
+
+        <div class="container">
+            <p class="footer-copy" style="margin-top: 22px;">
+                © 2026 Health Guard | Academic Project
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

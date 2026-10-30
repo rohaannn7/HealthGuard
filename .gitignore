@@ -1,0 +1,24 @@
+# Python virtual environments
+venv/
+venv311/
+xai_env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Test-generated PDF
+test_health_report.pdf

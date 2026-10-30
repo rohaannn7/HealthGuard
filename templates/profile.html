@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Health Guard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #f4f8fc;
+            color: #172b4d;
+        }
+        .card {
+            max-width: 520px;
+            margin: 40px auto;
+            padding: 35px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 5px 25px #0000000d;
+        }
+        h1 { color: #087f8c; margin-top: 0; }
+        label {
+            display: block;
+            margin: 20px 0 8px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 16px;
+        }
+        button, .link {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 7px;
+            background: #087f8c;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .message { padding: 12px; border-radius: 7px; background: #e0f2fe; }
+        .success { background: #dcfce7; color: #166534; }
+        .danger { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+        .secondary { background: #e2e8f0; color: #172b4d; }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>My Profile</h1>
+        <p>View and update your account information.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <p class="message {{ category }}">{{ message }}</p>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="name">Full name</label>
+            <input id="name" name="name" type="text"
+                   value="{{ user['name'] }}" maxlength="100" required>
+
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email"
+                   value="{{ user['email'] }}" maxlength="254" required>
+
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <p><a class="link" href="{{ url_for('change_password_page') }}">Change Password</a></p>
+        <p><a class="link secondary" href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+    </main>
+</body>
+</html>

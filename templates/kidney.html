@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kidney Disease Assessment | Health Guard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #243247;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 5px 22px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #176b59;
+        }
+
+        .intro {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #176b59;
+            font-size: 19px;
+            margin-top: 28px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 7px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+            font-size: 14px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            margin-top: 28px;
+            padding: 14px;
+            background: #176b59;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #125344;
+        }
+
+        .message {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 8px;
+            background: #e8f5e9;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .notice {
+            margin-top: 24px;
+            padding: 14px;
+            background: #fff7ed;
+            border-left: 4px solid #f59e0b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            color: #176b59;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* ==============================
+        SHAP Explainable AI Section
+        ============================== */
+
+        .shap-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #ffffff;
+            border: 1px solid #dce8ed;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(15, 70, 85, 0.07);
+        }
+
+        .shap-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e3f2f2;
+        }
+
+        .shap-header h2 {
+            margin: 0 0 8px;
+            color: #087f8c;
+            font-size: 25px;
+        }
+
+        .shap-header p {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .shap-summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .shap-summary-card {
+            padding: 18px;
+            background: #f0fafa;
+            border: 1px solid #d5eeee;
+            border-radius: 10px;
+        }
+
+        .shap-summary-card span {
+            display: block;
+            margin-bottom: 8px;
+            color: #526777;
+            font-size: 14px;
+        }
+
+        .shap-summary-card strong {
+            color: #087f8c;
+            font-size: 24px;
+        }
+
+        .shap-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .shap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .shap-table th {
+            padding: 14px 12px;
+            background: #e7f6f7;
+            color: #087f8c;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .shap-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e1e8ef;
+            color: #243b53;
+        }
+
+        .shap-table tbody tr:hover {
+            background: #f7fbfc;
+        }
+
+        .shap-positive {
+            color: #c75b12;
+            font-weight: 600;
+        }
+
+        .shap-negative {
+            color: #008568;
+            font-weight: 600;
+        }
+
+        .shap-bar-track {
+            width: 100%;
+            min-width: 80px;
+            height: 8px;
+            overflow: hidden;
+            background: #e7edf2;
+            border-radius: 10px;
+        }
+
+        .shap-bar {
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .shap-bar.positive {
+            background: #e58b42;
+        }
+
+        .shap-bar.negative {
+            background: #10a37f;
+        }
+
+        .shap-disclaimer {
+            margin-top: 20px;
+            padding: 14px;
+            background: #fff8e8;
+            border-left: 4px solid #e8a23a;
+            border-radius: 5px;
+            color: #78551a;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 650px) {
+            .shap-section {
+                padding: 16px;
+            }
+
+            .shap-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .shap-header h2 {
+                font-size: 21px;
+            }
+
+            .shap-table {
+                font-size: 12px;
+            }
+
+            .shap-table th,
+            .shap-table td {
+                padding: 10px 8px;
+            }
+        }
+
+
+        @media (max-width: 650px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Kidney Disease Assessment</h1>
+
+    <p class="intro">
+        Enter the clinical measurements and indicators used by the
+        Health Guard machine-learning model.
+    </p>
+
+    {% if result %}
+        <div class="message">
+            <strong>Model Result:</strong><br>
+            {{ result }}
+        </div>
+    {% endif %}
+
+    {% if result and report_id %}
+    <div class="mt-3">
+        <a
+            href="{{ url_for('download_health_report', report_id=report_id) }}"
+            class="btn btn-success"
+        >
+            Download PDF Health Report
+        </a>
+    </div>
+{% endif %}
+
+    {% if shap_result %}
+    <section class="result" style="margin-top: 24px;">
+        <h2>Explainable AI — Kidney Disease</h2>
+
+        <p>
+            Estimated model probability for the CKD class:
+            <strong>{{ "%.2f"|format(shap_result.probability * 100) }}%</strong>
+        </p>
+
+        <p>
+            The following SHAP contributions explain how each input
+            influenced the model's output relative to its reference data.
+        </p>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 10px;">Feature</th>
+                        <th style="text-align: left; padding: 10px;">Input Value</th>
+                        <th style="text-align: left; padding: 10px;">SHAP Contribution</th>
+                        <th style="text-align: left; padding: 10px;">Direction</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in shap_result.features %}
+                    <tr>
+                        <td style="padding: 10px;">{{ item.feature }}</td>
+                        <td style="padding: 10px;">{{ item.value }}</td>
+                        <td style="padding: 10px;">
+                            {{ "%+.5f"|format(item.contribution) }}
+                        </td>
+                        <td style="padding: 10px;">
+                            {% if item.contribution > 0 %}
+                                ↑ Increases model output
+                            {% elif item.contribution < 0 %}
+                                ↓ Decreases model output
+                            {% else %}
+                                No directional contribution
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p style="font-size: 13px; color: #5a6f86;">
+            Explanation method: {{ shap_result.explainer_method }}.
+            SHAP explains model behavior, not medical causation or a confirmed
+            diagnosis. The probability is not necessarily a calibrated clinical risk.
+        </p>
+    </section>
+    {% endif %}
+
+    {% if error %}
+        <div class="message error">
+            <strong>Error:</strong> {{ error }}
+        </div>
+    {% endif %}
+
+    <form method="POST" action="/predict/kidney">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <h2>1. Basic Information</h2>
+
+        <div class="grid">
+            <div>
+                <label for="age">Age (years)</label>
+                <input type="number" id="age" name="age"
+                       min="1" max="120" step="1" required>
+            </div>
+
+            <div>
+                <label for="bp">Blood Pressure (mmHg)</label>
+                <input type="number" id="bp" name="bp"
+                       min="1" max="300" step="any" required>
+            </div>
+        </div>
+
+        <h2>2. Numerical Clinical Measurements</h2>
+
+        <div class="grid">
+            <div>
+                <label for="bgr">Blood Glucose Random (bgr)</label>
+                <input type="number" id="bgr" name="bgr"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="bu">Blood Urea (bu)</label>
+                <input type="number" id="bu" name="bu"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="sc">Serum Creatinine (sc)</label>
+                <input type="number" id="sc" name="sc"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="sod">Sodium (sod)</label>
+                <input type="number" id="sod" name="sod"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="pot">Potassium (pot)</label>
+                <input type="number" id="pot" name="pot"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="hemo">Hemoglobin (hemo)</label>
+                <input type="number" id="hemo" name="hemo"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="pcv">Packed Cell Volume (pcv)</label>
+                <input type="number" id="pcv" name="pcv"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="wc">White Blood Cell Count (wc)</label>
+                <input type="number" id="wc" name="wc"
+                       min="0" step="any" required>
+            </div>
+
+            <div>
+                <label for="rc">Red Blood Cell Count (rc)</label>
+                <input type="number" id="rc" name="rc"
+                       min="0" step="any" required>
+            </div>
+        </div>
+
+        <h2>3. Categorical Clinical Indicators</h2>
+
+        <p>
+            Select the recorded clinical category for each indicator.
+            Use the values from a patient's medical report.
+        </p>
+
+        <div class="grid">
+            <div>
+                <label for="sg">Specific Gravity (sg)</label>
+                <select id="sg" name="sg" required>
+                    <option value="">Select value</option>
+                    <option value="1.005">1.005</option>
+                    <option value="1.010">1.010</option>
+                    <option value="1.015">1.015</option>
+                    <option value="1.020">1.020</option>
+                    <option value="1.025">1.025</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="al">Albumin Level (al)</label>
+                <select id="al" name="al" required>
+                    <option value="">Select value</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="su">Sugar Level (su)</label>
+                <select id="su" name="su" required>
+                    <option value="">Select value</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="rbc">Red Blood Cells (rbc)</label>
+                <select id="rbc" name="rbc" required>
+                    <option value="">Select value</option>
+                    <option value="normal">Normal</option>
+                    <option value="abnormal">Abnormal</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="pc">Pus Cell (pc)</label>
+                <select id="pc" name="pc" required>
+                    <option value="">Select value</option>
+                    <option value="normal">Normal</option>
+                    <option value="abnormal">Abnormal</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="pcc">Pus Cell Clumps (pcc)</label>
+                <select id="pcc" name="pcc" required>
+                    <option value="">Select value</option>
+                    <option value="present">Present</option>
+                    <option value="notpresent">Not present</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="ba">Bacteria (ba)</label>
+                <select id="ba" name="ba" required>
+                    <option value="">Select value</option>
+                    <option value="present">Present</option>
+                    <option value="notpresent">Not present</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="htn">Hypertension History (htn)</label>
+                <select id="htn" name="htn" required>
+                    <option value="">Select value</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="dm">Diabetes Mellitus History (dm)</label>
+                <select id="dm" name="dm" required>
+                    <option value="">Select value</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="cad">Coronary Artery Disease (cad)</label>
+                <select id="cad" name="cad" required>
+                    <option value="">Select value</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="appet">Appetite (appet)</label>
+                <select id="appet" name="appet" required>
+                    <option value="">Select value</option>
+                    <option value="good">Good</option>
+                    <option value="poor">Poor</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="pe">Pedal Edema (pe)</label>
+                <select id="pe" name="pe" required>
+                    <option value="">Select value</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="ane">Anemia (ane)</label>
+                <select id="ane" name="ane" required>
+                    <option value="">Select value</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit">Assess Kidney Disease Risk</button>
+
+    </form>
+
+    <div class="notice">
+        <strong>Educational use only:</strong>
+        This machine-learning output is not a medical diagnosis.
+        Do not use it to make treatment decisions. Consult a qualified
+        healthcare professional for interpretation of clinical results.
+    </div>
+
+    <a class="back" href="/dashboard">← Back to Dashboard</a>
+
+</div>
+</body>
+</html>

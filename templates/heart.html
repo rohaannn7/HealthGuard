@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Prediction | Health Guard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #f3f7fb;
+            color: #102b4e;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: auto;
+            padding: 32px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(20, 50, 80, 0.07);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 32px;
+        }
+
+        .intro {
+            color: #5a6f86;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px 26px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 9px;
+            font-weight: bold;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px;
+            border: 1px solid #cbd7e5;
+            border-radius: 9px;
+            background: white;
+            color: #172b45;
+            font-size: 16px;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: 2px solid #0c8791;
+            border-color: #0c8791;
+        }
+
+        button {
+            margin-top: 28px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 9px;
+            background: #087f8c;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #066873;
+        }
+
+        .result,
+        .error,
+        .disclaimer {
+            margin-top: 24px;
+            padding: 18px;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+
+        .result {
+            background: #e0f7ee;
+            color: #075b3c;
+        }
+
+        .error {
+            background: #fde8e7;
+            color: #8b1e1e;
+        }
+
+        .disclaimer {
+            background: #fff7e6;
+            color: #79520a;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 22px;
+            color: #087f8c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .xai-panel {
+            margin-top: 28px;
+            padding: 24px;
+            border: 1px solid #d7e9ed;
+            border-radius: 14px;
+            background: #ffffff;
+        }
+
+        .xai-panel h2 {
+            margin-top: 0;
+            color: #087f8c;
+        }
+
+        .xai-description {
+            color: #64748b;
+            line-height: 1.7;
+        }
+
+        .probability-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 10px;
+            background: #e8f7f8;
+        }
+
+        .probability-card strong {
+            color: #087f8c;
+            font-size: 26px;
+        }
+
+        .xai-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        .xai-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .xai-table th,
+        .xai-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .xai-table th {
+            background: #e8f7f8;
+            color: #087f8c;
+        }
+
+        .direction-positive {
+            color: #b45309;
+            font-weight: bold;
+        }
+
+        .direction-negative {
+            color: #047857;
+            font-weight: bold;
+        }
+
+        .direction-neutral {
+            color: #64748b;
+        }
+
+        .xai-method {
+            margin-top: 18px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>❤️ Heart Disease Prediction</h1>
+
+        <p class="intro">
+            Enter the 13 health measurements below to obtain an experimental
+            prediction from the trained machine-learning model.
+        </p>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+                {% for field in fields %}
+                <div class="field">
+                    <label for="{{ field.name }}">
+                        {{ field.label }}
+                    </label>
+
+                    {% if field.type == "select" %}
+                    <select id="{{ field.name }}" name="{{ field.name }}" required>
+                        {% for value, label in field.options %}
+                        <option value="{{ value }}"
+                            {% if request.form.get(field.name, field.options[0][0]) == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                    <input
+                        type="number"
+                        id="{{ field.name }}"
+                        name="{{ field.name }}"
+                        value="{{ request.form.get(field.name, field.value) }}"
+                        step="{{ field.step }}"
+                        required
+                    >
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit">Analyze Input</button>
+        </form>
+
+        {% if result %}
+        <div class="result" role="status">
+            <strong>Model result</strong><br>
+            {{ result }}
+        </div>
+        {% endif %}
+
+        {% if result and report_id %}
+            <div class="mt-3">
+                <a
+                    href="{{ url_for('download_health_report', report_id=report_id) }}"
+                    class="btn btn-success"
+                >
+                    Download PDF Health Report
+                </a>
+            </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error" role="alert">
+            <strong>Input error</strong><br>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if xai_result %}
+        <section class="xai-panel" aria-labelledby="xai-heading">
+            <h2 id="xai-heading">🧠 Explainable AI Analysis</h2>
+
+            <p class="xai-description">
+                Explore how the input features influenced the heart disease
+                machine-learning model's output for this assessment.
+            </p>
+
+            <div class="probability-card">
+                <span>Estimated probability for class 1</span>
+                <strong>
+                    {{ "%.2f"|format(xai_result.probability * 100) }}%
+                </strong>
+            </div>
+
+            <h3>Feature Contributions</h3>
+
+            <p class="xai-description">
+                Features are ranked by the absolute size of their SHAP
+                contributions. Positive values increase the model output;
+                negative values decrease it.
+            </p>
+
+            <div class="xai-table-wrapper">
+                <table class="xai-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Input Value</th>
+                            <th>SHAP Contribution</th>
+                            <th>Direction</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in xai_result.features %}
+                        <tr>
+                            <td>{{ item.feature }}</td>
+                            <td>{{ "%.3f"|format(item.value) }}</td>
+                            <td>
+                                {{ "%+.5f"|format(item.contribution) }}
+                            </td>
+                            <td>
+                                {% if item.contribution > 0 %}
+                                <span class="direction-positive">
+                                    ↑ Increases output
+                                </span>
+                                {% elif item.contribution < 0 %}
+                                <span class="direction-negative">
+                                    ↓ Decreases output
+                                </span>
+                                {% else %}
+                                <span class="direction-neutral">
+                                    No directional contribution
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="xai-method">
+                Explanation method: {{ xai_result.explainer_method }}.
+                These contributions explain the model's output, not medical
+                causation or an individual's confirmed disease status.
+            </p>
+        </section>
+        {% endif %}
+
+        <div class="disclaimer">
+            <strong>Medical disclaimer:</strong>
+            This is an academic machine-learning demonstration, not a
+            diagnostic tool. Predictions may be incorrect and must not
+            replace professional medical advice, testing, or emergency care.
+        </div>
+
+        <a class="back-link" href="/dashboard">← Back to Dashboard</a>
+    </main>
+</body>
+</html>
